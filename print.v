@@ -23,20 +23,18 @@ case(current)
 		else next = SLEEPING;	
 endcase
 
-always @(posedge clk)
+always @(negedge rst_n,posedge clk)
 begin
-if (rst_n)
+if (!rst_n)
 begin current <= SLEEPING;
-warming_counter <=0;
-pages_to_print <=0;
 end
 else current <= next;
 end
 
 
-always @(posedge clk)
+always @(negedge rst_n, posedge clk)
 begin
-if (rst_n)
+if (!rst_n)
 warming_counter <=0;
 else if (current == WARMING)
 warming_counter <= warming_counter+1;   
@@ -56,21 +54,21 @@ pages_to_print <= pages_to_print + pages;
 
 always @(current) 
 case(current)
-  SLEEPING:begin warm <= 0;
-            loadpage <= 0;
-            printpage <=0;
+  SLEEPING:begin warm = 0;
+            loadpage = 0;
+            printpage =0;
             end
-  WARMING:begin warm <= 1;
-            loadpage <= 0;
-            printpage <=0;
+  WARMING:begin warm = 1;
+            loadpage = 0;
+            printpage =0;
             end
-  LOADING:begin warm <= 0;
-            loadpage <= 1;
-            printpage <=0;
+  LOADING:begin warm = 0;
+            loadpage = 1;
+            printpage =0;
           end
-  PRINTING:begin warm <= 0;
-            loadpage <= 0; 
-            printpage <=1;
+  PRINTING:begin warm = 0;
+            loadpage = 0; 
+            printpage =1;
           end
 endcase
 
