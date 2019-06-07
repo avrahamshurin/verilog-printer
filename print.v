@@ -12,11 +12,11 @@ reg [1:0] current, next;
 
 localparam SLEEPING = 2'b00, WARMING = 2'b01, LOADING = 2'b10, PRINTING = 2'b11;
 
-always @ (current, push)
+always @ (current, push, warming_counter, pages_to_print)
 case(current)
 	SLEEPING:	if (push) next = WARMING;
 		else next = SLEEPING;	
-	WARMING:	if (warming_counter == 3'd100) next = LOADING;
+	WARMING:	if (warming_counter == 'd100) next = LOADING;
 		else next = WARMING;	
 	LOADING:	next =PRINTING;
 	PRINTING:	if (pages_to_print) next = LOADING;
@@ -37,15 +37,19 @@ begin
 if (!rst_n)
 warming_counter <=0;
 else if (current == WARMING)
-warming_counter <= warming_counter+1;   
+warming_counter <= warming_counter+1;
+else if (current == SLEEPING)
+warming_counter <= 0;   
 end
 
 always @(posedge clk)
 begin
-if (rst_n) 
+if (!rst_n) 
 pages_to_print <=0; 
-else if (current == PRINTING)
+else if (current == PRINTING) if (next != SLEEPING)
 pages_to_print <= pages_to_print - 1;
+else if (next == SLEEPING)
+pages_to_print <= 0;   
 end
 
 always @(posedge push)
